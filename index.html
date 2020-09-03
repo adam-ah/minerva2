@@ -1,0 +1,100 @@
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js"
+        integrity="sha512-G8JE1Xbr0egZE5gNGyUm1fF764iHVfRXshIoUWCTPAbKkkItp/6qal5YAHXrxEu4HNfPTQs6HOu3D5vCGS1j3w=="
+        crossorigin="anonymous"></script>
+    <script src='minerva2.js'></script>
+</head>
+
+<body>
+    <div class="chartjs-wrapper">
+        <canvas id="chartjs-1" class="chartjs" width="undefined" height="undefined"></canvas>
+    </div>
+    <script>
+        var currentChart = null;
+
+        function displayResults(s, ambiguous) {
+            const cutoff = 5 / 100;
+
+            var echo = null;
+            if (ambiguous) {
+                echo = sortPrint(queryIterative(s));
+            } else {
+                echo = sortPrint(queryString(s));
+            }
+
+            var echocontent = echo.content;
+            var intensity = echo.intensity;
+
+            var labels = echocontent.filter(element => Math.abs(element[1]) > cutoff).map(element => element[0]);
+            var values = echocontent.filter(element => Math.abs(element[1]) > cutoff).map(element => element[1]);
+
+            var data = {
+                "labels": labels,
+                "datasets": [
+                    {
+                        "label": 'Echo intensity: ' + intensity.toFixed(3),
+                        "data": values,
+                        "borderWidth": 1
+                    }]
+            };
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            currentChart = new Chart(document.getElementById("chartjs-1"), {
+                "type": "bar", "data": data, "options": {
+                    legend: {
+                        //display: false
+                    }, "scales": { "yAxes": [{ "ticks": { "beginAtZero": true } }] }
+                }
+            });
+        }
+
+        function addTraces() {
+            facts = [];
+
+            const traces = document.getElementById('knowledgeInput').value.split('\n');
+
+            traces.forEach(trace => {
+                if (trace) {
+                    addString(trace);
+                }
+            });
+
+            document.getElementById('alertBox').innerHTML = 'Added, you can query it now';
+            setTimeout(function () { document.getElementById('alertBox').innerHTML = ''; }, 5000);
+        }
+    </script>
+    <input type="text" id="queryStringInput">
+    <input type="button" onclick="displayResults(document.getElementById('queryStringInput').value, true)"
+        value="Ambiguous recall">
+    <input type="button" onclick="displayResults(document.getElementById('queryStringInput').value, false)"
+        value="Single recall">
+    <div>
+        <textarea id='knowledgeInput' rows="30" cols="90">
+type:animal type:horse type:friesian color:black small intelligent hair:long -strong
+type:animal type:horse type:belgian large heavy strong
+type:horse herbivore
+type:cat carnivore
+type:animal type:rat small color:white intelligent type:rodent
+type:animal type:rabbit -intelligent type:rodent
+type:animal type:bird type:canary color:yellow sing small
+type:apple type:fruit
+type:apple sweet sour -bitter
+type:apple color:red
+type:apple color:yellow
+type:fruit type:orange color:orange sweet sour
+type:fruit type:pear color:yellow sweet -sour
+type:fruit type:cranberry color:red sour bitter small
+type:fruit type:watermelon color:red color:green sweet sour -small
+type:vegetable type:spinach color:green
+type:vegetable type:chilli color:red strong
+</textarea>
+    </div>
+    <div id='alertBox' style="font-weight:bold"></div>
+    <input type="button" onclick="addTraces()" value="Add memory traces">
+</body>
+
+</html>
