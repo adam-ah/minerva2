@@ -8,8 +8,15 @@
 </head>
 
 <body>
-    <div class="chartjs-wrapper">
-        <canvas id="chartjs-1" class="chartjs" width="undefined" height="undefined"></canvas>
+    <div id='chartInputs' style="display: none">
+        <div class="chartjs-wrapper" style="height: 25vh; width: 50%">
+            <canvas id="chartjs-1" class="chartjs"></canvas>
+        </div>
+        <input type="text" id="queryStringInput">
+        <input type="button" onclick="displayResults(document.getElementById('queryStringInput').value, true)"
+            value="Ambiguous recall">
+        <input type="button" onclick="displayResults(document.getElementById('queryStringInput').value, false)"
+            value="Single recall">
     </div>
     <script>
         var currentChart = null;
@@ -44,10 +51,15 @@
             }
 
             currentChart = new Chart(document.getElementById("chartjs-1"), {
-                "type": "bar", "data": data, "options": {
+                "type": "bar",
+                "data": data,
+                "options": {
                     legend: {
                         //display: false
-                    }, "scales": { "yAxes": [{ "ticks": { "beginAtZero": true } }] }
+                    },
+                    "scales": { "yAxes": [{ "ticks": { "beginAtZero": true } }] },
+                    responsive: true,
+                    maintainAspectRatio: false
                 }
             });
         }
@@ -63,15 +75,15 @@
                 }
             });
 
+            if (facts.length) {
+                document.getElementById('chartInputs').style.display = 'block';
+            }
+
             document.getElementById('alertBox').innerHTML = 'Added, you can query it now';
             setTimeout(function () { document.getElementById('alertBox').innerHTML = ''; }, 5000);
         }
     </script>
-    <input type="text" id="queryStringInput">
-    <input type="button" onclick="displayResults(document.getElementById('queryStringInput').value, true)"
-        value="Ambiguous recall">
-    <input type="button" onclick="displayResults(document.getElementById('queryStringInput').value, false)"
-        value="Single recall">
+
     <div>
         <textarea id='knowledgeInput' rows="30" cols="90">
 type:animal type:horse type:friesian color:black small intelligent hair:long -strong

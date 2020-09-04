@@ -66,7 +66,7 @@ function query(dict) {
         }
     });
 
-    let maxelement = Math.max(...Object.values(response));
+    let maxelement = Math.max(Math.abs(...Object.values(response)));
 
     for (var key in response) {
         response[key] /= maxelement;
